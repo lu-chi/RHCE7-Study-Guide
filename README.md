@@ -5,8 +5,8 @@ My Study Guide for RHCE7
 
 ## Controlling Services and Daemons
 
-##Concepts
-### Unit Types
+###Concepts
+#### Unit Types
 
 * Service Units: have a .service extension and represent system services. This type of unit is used to start frequently accessed daemons, such as a web server.
 
@@ -14,14 +14,14 @@ My Study Guide for RHCE7
 
 * Path Units: have a .path extension and are used to delay the activation of a service until a specific file system change occurs. This is commonly used for services which use spool directories, such as a printing system.
 
-### Targets
+#### Targets
 A target is a set of systemd units that should be started to reach a desired state. 
-#### Important targets
+##### Important targets
  
  * graphcial
 
 ## Commands
-### Common systemctl commands
+#### Common systemctl commands
 ```bash
 systemctl status <UNIT>
 ```
