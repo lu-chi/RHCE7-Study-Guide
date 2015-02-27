@@ -18,9 +18,45 @@ My Study Guide for RHCE7
 A target is a set of systemd units that should be started to reach a desired state. 
 ##### Important targets
  
- * graphcial
+ * graphical.target: System supports multiple users, graphical and text-based logins.
 
-## Commands
+ * multi-user.target: System supports multiple users, text-based logins only. 
+
+ * rescue.target: sulogin prompt, basic system initialization completed.
+
+ * emergency.target: sulogin prompt, initramfs pivot complete and system root mounted on / read-only.
+
+ ##### Selecting a different target at boot time.
+ Simply interrupt the boot loader menu, select the entry to be started, edit it by pressing 'e' and append "systemd.unit=<DESIRED_UNIT>" to the line starting with linux16
+
+#### Recovering the root password
+
+1. Reboot the System, enter edit mode for the proper entry in the bootloader. 
+
+2. Append rd.break to the end of the line that starts with linux16. Restart with Ctrl+X
+
+3. Remount /sysroot as read-write. 
+
+```bash
+switch_root:/# mount -oremount,rw /sysroot
+```
+
+4. Switch into a chroot jail, where /sysroot is treated as the root of the file system tree.
+
+```bash
+chroot /sysroot
+```
+
+5. Set a new root password
+
+6. Make sure that all unlabeled files (including /etc/shadow at this point) get relabeled during boot. 
+
+```bash
+touch /.autorelabel
+```
+
+7. Type exit twice to continue booting.
+### Commands
 #### Common systemctl commands
 ```bash
 systemctl status <UNIT>
@@ -51,6 +87,18 @@ systemctl disable <UNIT>
 ```
 ```bash
 systemctl list-dependencies <UNIT>
+```
+Change the system target during runtime: 
+```bash
+systemctl isolate <TARGET>
+```
+Get default system target
+```bash
+systemctl get-default
+```
+Set the default target (Not for runtime)
+```bash
+systemctl set-default <DESIRED_TARGET>
 ```
 
 ## Managing IPv6 Networking
