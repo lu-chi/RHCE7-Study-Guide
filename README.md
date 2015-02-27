@@ -88,6 +88,16 @@ systemctl list-dependencies <UNIT>
 
 
 ## Configuring the Shell Environment
-
+### Concepts
+#### Environment Variables 
+What makes variables environment variables is that they have been exported in the shell. The key to making a variable become an environment variable is flaggin it for export using the export command.
+#### bash start-up scripts
+Usually, profiles are only executed ina login shell, whereas RCs are executed every time a shell is created.
+#### Using alias
+alias is a way administrators or users can define their own command to the system or override the use of existing system commands.
+#### Using functions
+function_name() {
+ body
+}
 
 
