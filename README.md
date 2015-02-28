@@ -31,31 +31,31 @@ A target is a set of systemd units that should be started to reach a desired sta
 
 #### Recovering the root password
 
-1. Reboot the System, enter edit mode for the proper entry in the bootloader. 
+* Reboot the System, enter edit mode for the proper entry in the bootloader. 
 
-2. Append rd.break to the end of the line that starts with linux16. Restart with Ctrl+X
+* Append rd.break to the end of the line that starts with linux16. Restart with Ctrl+X
 
-3. Remount /sysroot as read-write. 
+* Remount /sysroot as read-write. 
 
 ```bash
 switch_root:/# mount -oremount,rw /sysroot
 ```
 
-4. Switch into a chroot jail, where /sysroot is treated as the root of the file system tree.
+* Switch into a chroot jail, where /sysroot is treated as the root of the file system tree.
 
 ```bash
 chroot /sysroot
 ```
 
-5. Set a new root password
+* Set a new root password
 
-6. Make sure that all unlabeled files (including /etc/shadow at this point) get relabeled during boot. 
+* Make sure that all unlabeled files (including /etc/shadow at this point) get relabeled during boot. 
 
 ```bash
 touch /.autorelabel
 ```
 
-7. Type exit twice to continue booting.
+* Type exit twice to continue booting.
 
 ### Commands
 
@@ -105,6 +105,34 @@ systemctl set-default <DESIRED_TARGET>
 ```
 
 ## Managing IPv6 Networking
+###Concepts
+####Modifying the system hostname
+A static host name may be specified in the /etc/hostname file. The hostnamectl command is used to modify this file and may be used to view of the systems FQDN. 
+
+
+
+###Commands
+List names of available connections:
+```bash
+nmcli con show
+```
+Adding a new connection profile
+```bash
+nmcli con add con-name <NAME> type <TYPE> ifname <INTERFACE_NAME>
+```
+Modifying existing connections
+```bash
+nmcli con mod <con-name> ..
+```
+Deleting a network connection
+```bash
+nmcli con del <con-name>
+```
+Deactivate and disconnect the current connection on the network interface dev
+```bash
+nmcli dev dis <dev-name>
+```
+
 
 
 ## Configuring Link Aggregation and Bridging
