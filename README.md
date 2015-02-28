@@ -56,8 +56,11 @@ touch /.autorelabel
 ```
 
 7. Type exit twice to continue booting.
+
 ### Commands
+
 #### Common systemctl commands
+
 ```bash
 systemctl status <UNIT>
 ```
@@ -113,7 +116,49 @@ systemctl set-default <DESIRED_TARGET>
 ## Managing DNS for Servers
 
 
-## Configuring Email Transmission
+## Configuring Email Transmission (PostFix)
+###Concepts
+####Null Clients
+In practice, most servers are monitored and send out mails when incidents occur. This is often requires a configured /usr/sbin/sendmail to send emails to notify the respnsible system admins by using the corporate SMTP server. 
+A 'null client' is a client machine that runs a local mail server which forwards all emails to an outbound mail relay for delivery. A null client does not accept local delivery for any messages, it can only send them to the outbound mail relay. Users may run mail clients on the null client ot read and send emails. 
+The following are true on a null client:
+
+* the sendmail command and programs that use it forward all emails to an existing outbound mail realy for delivery
+
+* The local Postfix service does not accept local delivery for any email messages
+
+* Users may run mail clients on the null client to read and send mails.
+
+###Important and Configuration Files with directives.
+
+* /etc/postfix/main.cf
+
+	* inet_interfaces= Controls which network interfaces Postfix listens on for incoming and outgoing messages. If set to 'loopback-only', Postfix listens only on 127.0.0.1 and ::1. If set to all, Postfix listens on all network interfaces. One or more host names and IP addresses, separated by white space, can be listed.
+
+	* myorigin= Rewrite locally posted email to appear to come from this domain. This helps ensure responses return to the correct domain the mail server is responsible for. 
+
+	*relayhost= Forward all message to the mail server specified that are supposed to be sent to forreign mail addresses. Square brackets around the host name suppress the MX record lookup.
+
+	* mydestination= Configure which domains the mail server is an end point for. Email addressed to these domains are delivered into local mailboxes.
+
+	* local_transport= Determine how email addressed to $mydestination should be delivered. By default, set to local:$myhostname, which uses the local mail delivery agent to deliver incoming mail to the local message store in /var/spool/mail.
+
+	* mynetworks= Allow relay through this mail server from a comma-separated list of IP addresses and networks in CIDR notation to anywhere, without further authentication. 
+
+*/var/log/maillog - Logs
+
+###Commands
+View and change postfix directives with the postconf command
+```bash
+postconf [directive .. ..]
+```
+```bash
+postconf -e '\<directive\> = \<value\>'
+```
+To show directives that have been changed from the default
+```bash
+postconf -n
+```
 
 
 ##Providing Remote Block Storage
