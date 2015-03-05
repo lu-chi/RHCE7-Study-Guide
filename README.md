@@ -3,7 +3,7 @@ My Study Guide for RHCE7
 
 
 
-## Controlling Services and Daemons
+## Controlling Services and Daemons - Complete
 
 ###Concepts
 #### Unit Types
