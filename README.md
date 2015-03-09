@@ -144,7 +144,7 @@ nmcli dev dis <dev-name>
 ## Managing DNS for Servers
 
 
-## Configuring Email Transmission (PostFix)
+## Configuring Email Transmission (PostFix) - Complete
 ###Concepts
 ####Null Clients
 In practice, most servers are monitored and send out mails when incidents occur. This is often requires a configured /usr/sbin/sendmail to send emails to notify the respnsible system admins by using the corporate SMTP server. 
@@ -165,7 +165,7 @@ The following are true on a null client:
 
 	* myorigin= Rewrite locally posted email to appear to come from this domain. This helps ensure responses return to the correct domain the mail server is responsible for. 
 
-	*relayhost= Forward all message to the mail server specified that are supposed to be sent to forreign mail addresses. Square brackets around the host name suppress the MX record lookup.
+	*relayhost= Forward all message to the mail server specified that are supposed to be sent to foreign mail addresses. Square brackets around the host name suppress the MX record lookup.
 
 	* mydestination= Configure which domains the mail server is an end point for. Email addressed to these domains are delivered into local mailboxes.
 
@@ -189,10 +189,11 @@ postconf -n
 ```
 
 
-##Providing Remote Block Storage
+## Providing Remote Block Storage
 
 
 ## Providing File-based Storage
+
 
 
 ## Configuring MariaDB Databases
