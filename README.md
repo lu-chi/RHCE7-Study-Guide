@@ -288,6 +288,105 @@ semanage port -m -t httpd_port_t -p tcp 71
 
 
 ## Managing DNS for Servers
+###DNS Concepts
+Resource Records:
+
+* A (Ipv4) records - An A record maps a host name to an IPv4 address
+
+* AAAA (Ipv6 address) records - An AAAA resource record maps a host name to an IPv6 address.
+
+* CNAME(canonical name) records - A CNAME resource record aliases one name to another name (the canonical name), which should have A or AAAA records.
+
+* PTR(pointer) records - A PTR record maps IPv4 or IPV6 addresses to a host name. They are used for reverse DNS resolution
+
+* NS(name server) records - An NS record maps a domain name to a DNS name server which is authoritive for its DNS zone
+
+* SOA(start of authority) records - an SOA record provides information about how a DNS zone works. 
+
+* MX (mail exchange) records - An MX record maps a domain name to a mail exchange which will accept email for that name.
+
+* TXT(text) records - A TXT record is used to map a name to arbitrary human-readable text
+
+###Configuring aa Caching Name Server
+Caching nameserver
+
+Caching nameservers store DNS query results in a local cache and removes resource records from the cache when their TTLs expire. This greatly imporves the efficiency of DNS name resolutions by reducing DNS traffic across the internet. 
+
+
+DNSSEC validation
+
+Prevents cache poisoning. DNSSEC validation enabled allows the authenticity and integrity of resource records to be validated prior to being placed in the cache for use by clients.
+
+####Configuring and administering unbound as a caching nameserver
+Install unbound
+```bash
+yum install -y unbound
+```
+Enable and start the service
+```bash
+systemctl start unbound.service
+systemctl enable unbound.service
+```
+Configure the network interface to listen on
+
+By default, unbound only listens on the localhost network interface. To make unbound available to remote clients as a caching nameserver, use the interface option in the server clause of /etc/unbound/unbound.conf to specify th enetwork interface(s) to listen on. 
+```bash
+interface: 0.0.0.0
+```
+
+Configure client access
+
+By default, unbound refuses recursive queries from all clients. In the server clause of /etc/unbound/unbound.conf, use the access-control option to specify which clients are allowed to make recursive queries. 
+```bash
+access-control: 172.25.0.0/24 allow
+```
+
+Configure forwarding
+
+For a caching nameserver, forward all queries by specifying a forward-zone of ".".
+```bash
+forward-zone:
+	name: "."
+	forward-addr: 172.25.254.254
+```
+
+If desired, bypass DNSSEC validation for select unsigned zones. The domain-insecure option in the server clause of the file can be used to specify a domain for which DNSSEC validation should be skipped.
+```bash
+domain-insecure: example.com
+```
+
+If desired, install trust anchors for select signed-zones without complete chain of trust. Obtain the DNSKEY record for the key signing key of the zone using dig and input it as the value for the trust-anchor option
+```bash
+dig +dnssec DNSKEY example.com
+```
+```bash
+trust-anchor: "example.om 2500 in DNSKEY 243 3 8 ;laksjd;lfkja;sdklfja;slkdfja;lskdjf;alksjdf;laksdjf;lkajsd;lkfjas;dklfja;sdklfj;aiowej;fiajsf;awiejf;alj"
+```
+
+Verify the configuration file:
+```bash
+unbound-checkconf
+```
+
+Restart services, configure firewall to allow DNS.
+```bash
+systemctl restart unbound.service
+firewall-cmd --permanent --add-service=dns
+firewall-cmd --reload
+```
+
+Dumping and loading unbound cache
+```bash
+unbound-control dump_cache
+```
+
+Flusing unbound cache
+```bash
+unbound-control flush www.example.com
+```
+
+
+
 
 
 ## Configuring Email Transmission (PostFix) - Complete
