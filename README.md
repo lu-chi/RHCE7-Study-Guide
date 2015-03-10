@@ -292,7 +292,7 @@ iscsiadm -m node -T <iqn-target-name> [-p target_server[:port]] -u
 Delete a node record permantely:
 ```bash
 iscsiadm -m node -T <iqn-target-name> [-p target-server[:port]] -o delete
-
+```
 
 
 ## Providing File-based Storage
