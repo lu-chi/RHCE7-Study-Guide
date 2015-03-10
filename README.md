@@ -351,6 +351,11 @@ On the client side, mount -o v4.2 must be specified as the mount option.
 mount -o sec=krb5p,v4.2 serverX:/securedexport /mnt/securedexport
 ```
 
+Or if you want to mount persistantly, in the /etc/fstab:
+```bash
+serverX:/securenfs /mnt/secureshare nfs defaults,v4.2,sec=krb5p 0 0
+```
+
 ###Providing SMB File Shares
 Install Samba
 ```bash
