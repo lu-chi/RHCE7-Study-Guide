@@ -230,6 +230,61 @@ systemctl restart network
 
 
 ## Network Port-Security
+###Firewalld
+Some important commands:
+```bash
+firewall-cmd --set-default-zone=dmz
+firewall-cmd --permanent ...
+firewall-cmd --reload
+```
+####Rich rules
+Examples:
+```bash
+firewall-cmd --permanent --zone=classroom --add-rich-rule='rule family=ipv4 source address=192.168.0.11/32 reject'
+firewall-cmd --add-rick-rule='rule service name=ftp limit value=2/m accept'
+firewall-cmd --permanent --add-rich-rule='rule protocol value=esp drop'
+```
+
+Logging with rich rules:
+```bash
+firewall-cmd --permanent --zone=work --add-rich-rule='rule service name="ssh" log prefix="ssh " level="notice" limit value="3\m" accept'
+```
+
+For Help, there are examples at the bottom:
+```bash
+man firewalld.richlanguage
+```
+###Masquerading
+```bash
+firewall-cmd --permanent --zone=<ZONE> --add-masquerade
+```
+###Port Forwarding
+```bash
+firewall-cmd --permanent --zone=<ZONE> --add-forward-port=port=<PORTNUMBER>:proto=<PROTO>[:toport=<PORTNUMBER>][:toaddr=<IPADDR>]
+```
+###Managing SELinux Port Labeling
+Whenever an administrator decides to run a service on a nonstandard port, there is a high chance that SeLinux port labels will need to be updated. 
+
+List Port Labels:
+```bash
+semanage port -l
+```
+
+Managing port labels. To add a port to an existing port label:
+```bash
+semanage port -a -t port_label -p tcp|udp PORTNUMBER
+semanage port -a -t gopher_port_t -p tcp 71
+```
+
+Remove port labels
+```bash
+semanage port -d -t gopher_port_t -p tcp 71
+```
+
+Modifying port binding, this will modify port 71/tcp from gopher_port_t to httpd_port_t:
+```bash
+semanage port -m -t httpd_port_t -p tcp 71
+```
 
 
 ## Managing DNS for Servers
