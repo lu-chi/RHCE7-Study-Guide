@@ -133,12 +133,158 @@ Deactivate and disconnect the current connection on the network interface dev
 nmcli dev dis <dev-name>
 ```
 
+## Configuring Link Aggregation and Bridging - Complete
+###Network Teaming
+Software, called runners, implement load balancing and active-backup logic, such as roundrobin. The following runners are avaialble:
 
+* broadcast: a simple runner which transmits each packet from all ports.
 
-## Configuring Link Aggregation and Bridging
+* roundrobin: a simple runner which transmits packets in a round-robin fashin from each of the ports
+
+* activebackup: This is a failover runner which watches for link changes and slects an active port for data transfers. 
+
+* loadbalance: This runner monitors traffic and uses a hash function to try to reach a perfect balance when selecting ports for packet transmission.
+
+* lacp: implements the 802.3ad Link Aggregation Control Protocol. 
+
+####Configuring Network Teams:
+Create the team interface:
+```bash
+nmcli con add type team con-name team0 ifname team0 config '{"runner":{"name":"loadbalance"}}'
+```
+Determine the IPv4/IPv6 attributes of the team interface
+```bash
+nmcli con mod team0 ipv4.address 1.2.3.4/24
+nmcli con mod team0 ipv4.method manual
+```
+Assign the port interfaces. The connection name can be explicitly specified, or it will be team-slave-IFACE by default
+```bash
+nmcli con add type team-slave ifname eth1 master team0
+nmcli con add type team-slave ifname eth2 master team0
+```
+Bring the team and port interfaces up/down
+```bash
+nmcli con up team0
+nmcli dev dis eth2 
+```
+The teamdctl can be used to display the teams state. 
+```bash
+teamdctl team0 state
+```
+####Setting and adjusting team configuration
+```bash
+nmcli con mod IFACE team.config JSON-configuration-file-or-string
+```
+NOTE: Any changes made do not go into effect until the next time the team interface is brought up
+
+#####Link watch setting
+The link watch setting determines how the link state of the port interfaces are monitored. The default uses functionality similar to the ethtool command to check the link of each interface. Another way to check link state is to periodically use an ARP ping packet to check for remote connectivity. For Example:
+```bash
+"link_watch": {
+	"name": "arp_ping",
+	"interval": 100,
+	"missed_max": 30,
+	"source_host": "192.168.23.2",
+	"target_host": "192.168.23.1"
+},
+```
+####Troubleshooting network teams
+```bash
+teamdctl team0 config dump
+```
+
+###Configuring Software Bridges
+```bash
+nmcli con add type bridge con-name br0 ifname br0
+nmcli con add type bridge-slave con-name br0-port1 ifname eth1 master br0
+nmcli con add type bridge-slave con-anme br0-port2 ifname eth2 master br0
+```
+NOTE: NetworkManager can only attach Ethernet interfaces to a bridge. It does not support aggregate interfaces, such as a teamed or bonded interface. These must be configured by manipulating the configuration files in /etc/sysconfig/network-scripts.
+
+####Notes on adding a teamed interface to a bridge
+Disable the teamed interface in network manager, disable network manager
+```bash
+nmcli dev dis team0
+systemctl stop NetworkManager
+systemctl disable NetworkManager
+```
+Add the BRIDGE entry to the teamed interface
+```bash
+BRIDGE=brteam0
+```
+Delete the IP configurations from the configurations of the team port interfaces.
+
+Create a new interace configuration file for the bridge. Define the configuration information in that file:
+```bash
+DEVICE=brteam0
+ONBOOT=yes
+TYPE=Bridge
+IPADDR0=192.168.0.100
+PREFIX0=24
+```
+Reset the network
+```bash
+systemctl restart network
+```
+
 
 
 ## Network Port-Security
+###Firewalld
+Some important commands:
+```bash
+firewall-cmd --set-default-zone=dmz
+firewall-cmd --permanent ...
+firewall-cmd --reload
+```
+####Rich rules
+Examples:
+```bash
+firewall-cmd --permanent --zone=classroom --add-rich-rule='rule family=ipv4 source address=192.168.0.11/32 reject'
+firewall-cmd --add-rick-rule='rule service name=ftp limit value=2/m accept'
+firewall-cmd --permanent --add-rich-rule='rule protocol value=esp drop'
+```
+
+Logging with rich rules:
+```bash
+firewall-cmd --permanent --zone=work --add-rich-rule='rule service name="ssh" log prefix="ssh " level="notice" limit value="3\m" accept'
+```
+
+For Help, there are examples at the bottom:
+```bash
+man firewalld.richlanguage
+```
+###Masquerading
+```bash
+firewall-cmd --permanent --zone=<ZONE> --add-masquerade
+```
+###Port Forwarding
+```bash
+firewall-cmd --permanent --zone=<ZONE> --add-forward-port=port=<PORTNUMBER>:proto=<PROTO>[:toport=<PORTNUMBER>][:toaddr=<IPADDR>]
+```
+###Managing SELinux Port Labeling
+Whenever an administrator decides to run a service on a nonstandard port, there is a high chance that SeLinux port labels will need to be updated. 
+
+List Port Labels:
+```bash
+semanage port -l
+```
+
+Managing port labels. To add a port to an existing port label:
+```bash
+semanage port -a -t port_label -p tcp|udp PORTNUMBER
+semanage port -a -t gopher_port_t -p tcp 71
+```
+
+Remove port labels
+```bash
+semanage port -d -t gopher_port_t -p tcp 71
+```
+
+Modifying port binding, this will modify port 71/tcp from gopher_port_t to httpd_port_t:
+```bash
+semanage port -m -t httpd_port_t -p tcp 71
+```
 
 
 ## Managing DNS for Servers
