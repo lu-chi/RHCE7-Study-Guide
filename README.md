@@ -768,6 +768,64 @@ UNLOCK TABLES;
 The snapshot can not be mount at an arbitrary location
 
 ## Providing Apache HTTD Web Service
+###Basic Apache HTTPD configuration
+/etc/httpd/conf/httpd.conf
+
+Important Blocks and Configs:
+
+* <Directory [directory]>: sets configuration directives for the specified directory, and all decendent directories. 
+	
+	Common directives inside this block include:
+
+	* AllowOverride None: .htaccess files will not be consulted for per-directory configuration settings. Setting this to any other setting will have a performance penalty. 
+
+	* Require All Denied: httpd will refuse to servce content out of this directory
+
+	* Require All Granted: Allow access to this directory
+
+	* Options [[+|-]OPTIONS].. : Turn on (or off) certain options for a directory. For example, the Indexes option will show a directory listng if a directory is requested and no index.html file exists in that directory. 
+
+* DocumentRoot <directory>: This setting dtermines where httpd will search for requested files. It is important that the directory specified here is both readable by httpd(both regular and SELinux)
+
+* <Files [file]>: works just as a <Directory> block, but here options for individual files is used.
+
+* ErrorLog <file>:
+
+* IncludeOption [directory/*.conf] : Works the same as regular include, but if no files are found, no error is generated.
+
+Starting the service, enabling the firewall
+```bash
+systemctl enable httpd.service
+systemctl start httpd.service
+firewall-cmd --permanent --ad--service=http --add-service=https
+firewall-cmd --reload
+```
+
+Using an alternate document root:
+
+New document root must be readable by the apache user/group. The SELinux context may have to be changed. the /srv/*/www/ directories already have rules in place to relabel these files. If a new rules needs to be added:
+```bash
+semanage fcontext -a -t httpd_sys_content_t '/new/location(/.*)?'
+```
+
+Sometimes you want web devs to have write access to document root. To do this, use facls.
+###Configuring and Troubleshooting Virtual Hosts
+Virtual hosts allow a single httpd server to servce content for multiple domains. Based on either the IP address of the server that was connected to, the hostname request by the client in the httpd request, or a combination of both.
+
+Virtual hosts are configured using <VirtualHost> blocks inside the main configuration. 
+```bash
+<VirtualHost 192.168.0.1:80>
+	DocumentRoot /srv/site1/www
+
+	ServerName site1.example.com
+
+	ServerAdmin webmaster@site1.example.com
+
+	ErrorLog "logs/site1_error_log"
+
+	CustomLog "logs/site1_access_log" combined
+</VirtualHost>
+```
 
 
 ## Writing Bash Scripts
