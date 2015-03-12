@@ -750,6 +750,7 @@ mysqldump -u root -p password <table-name> > /backup/inventory.dump
 Restore it
 ```bash
 mysql -u root -p <table-name> < /backup/inventory.dump
+```
 
 ####Physical Backups(Using LVM snapshots)
 Involves taking a snapshot of the LVM the data base information is on. Then, flush tables and lock them
@@ -766,8 +767,6 @@ UNLOCK TABLES;
 ```
 The snapshot can not be mount at an arbitrary location
 
-
-####Performing a logical backup
 ## Providing Apache HTTD Web Service
 
 
