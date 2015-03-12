@@ -793,6 +793,8 @@ Important Blocks and Configs:
 
 * IncludeOption [directory/*.conf] : Works the same as regular include, but if no files are found, no error is generated.
 
+* CustomLog "log-path" combined - Define custom log location
+
 Starting the service, enabling the firewall
 ```bash
 systemctl enable httpd.service
@@ -809,6 +811,8 @@ semanage fcontext -a -t httpd_sys_content_t '/new/location(/.*)?'
 ```
 
 Sometimes you want web devs to have write access to document root. To do this, use facls.
+
+
 ###Configuring and Troubleshooting Virtual Hosts
 Virtual hosts allow a single httpd server to servce content for multiple domains. Based on either the IP address of the server that was connected to, the hostname request by the client in the httpd request, or a combination of both.
 
@@ -826,7 +830,75 @@ Virtual hosts are configured using <VirtualHost> blocks inside the main configur
 	CustomLog "logs/site1_access_log" combined
 </VirtualHost>
 ```
+####Wildcards and Priority
+When a request comes in, httpd will first try to match aginst virtual hosts that have an explicit IP address set. If those matches failt, virtual hosts with a wildcard IP address are inspected. If there is still no match, the "main" server configuration is used. 
 
+If no exact match has been found for a ServerName or ServerAlias directive, and there are multiple virtual hosts defined for the IP/port combination the request came in on, the first virtual host that matches an IP/port is used, with first being seen as the order in which virtual hosts are defined in the config file. 
+
+When multiple *.conf files are used, they will be included in alphanumeric sorting order.
+
+###Coniguring HTTPS
+Using genkey 
+```bash
+genkey <FQDN>
+```
+This will generate a bunch of files:
+
+* /etc/pki/tls/private/<fqdn>.key - The private key. NEEDS TO HAVE PERMISSIONS OF 0600
+
+* /etc/pki/tls/certs/<fqdn>.0.csr - the file generated if you requested a signing reqeust. 
+
+* /etc/pki/tls/certs/<fqdn>.crt - The public certificate
+
+Configure a host with SSL
+```shell
+<VirtualHost *:443>
+	ServerName demo.example.com
+	SSLEngine on
+	SSLProtocol all -SSLv2 -SSLv3
+	SSLCipherSuite HIGH:MEDIUM:!aNull:!MD5
+	SSLHonorCipherOrder on
+	SSLCertificateFile /etc/pki/tls/certs/demo.example.com.crt
+	SSLCertificateKeyFile /etc/pki/tls/private/demo.example.com.key
+	SSLCertificateChainFile /etc/pki/tls/certs/example-ca.crt
+</VirtualHost>
+```
+
+* SSLEngine on - This is the directive that actually turns on TLS for this virtual host
+
+* SSLProtocol all -SSLv2 -SSLv3 : This directive specifies the list of protocols that htppd is willing to speack with clients. 
+
+* SSLCipherSUITE HIGH:MEDIUM:!aNull:!MD5 - This directive lists what encryption ciphers httpd is willing to use when communicating with clients. 
+
+* SSLCertificateFile <file> - This directive instructs httpd where it can read the certificate for this virtual host
+
+* SSLCertificateKeyFile <file> - This directive instructs httpd where it can read the private key for this virtual host.
+
+* SSLCertificateChainFile <file> - a copy of all CS certificates used in the signing process concatentated together.
+
+###Configuring HTTP Strict Transport Security
+Automatically redirect clients connecting over http to the same resource using https
+```bash
+RewriteEngine on
+RewriteRule ^(/.*)$ https://%{HTTP_POST}$1 [redirect=301]
+```
+###Dynamic content
+To have httpd treat a location as CGI executables, the following syntax is used 
+```bash
+ScriptAlias /cgi-bin/ "/var/www/cgi-bin/"
+```
+Serving dynamic python content
+
+1. Install the mod_wsgi package
+
+2. Add a WSGIScriptAlias line to a virtual host definition
+
+```shell
+WSGIScriptAlias /myapp/ /srv/myapp/www/myapp.py
+```
+NOTE:
+
+When a network connection to another needs to be made from within the web application, and the target is not a well-known database port, the SELinux Boolean httpd_can_network_connect must be set to 1. 
 
 ## Writing Bash Scripts
 
