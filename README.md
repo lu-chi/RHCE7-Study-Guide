@@ -385,8 +385,20 @@ Flusing unbound cache
 unbound-control flush www.example.com
 ```
 
+###DNS Troubleshooting
+Useful commands:
+```bash
+getent hosts example.com
+gethostip example.com
+dig A example.com
+```
+####DNS response codes:
 
+* SERVFAIL - Failure of the DNS server to communicate with the nameservers authoritative for the name being queried.
 
+* NXDOMAIN - No records were found associated with the name queried.
+
+* REFUSED - DNS server has a policy restriction which keeps it from fulfilling the client's query.
 
 
 ## Configuring Email Transmission (PostFix) - Complete
@@ -707,8 +719,55 @@ echo "Frank was here" > /mnt/multiuser/frank2.txt
 ```
 
 ## Configuring MariaDB Databases
+Installation
+```bash
+yum groupinstall mariadb mariadb-client -y
+mysql_secure_installation
+```
+###SQL Commands for getting around
+```mysql
+USE mysql;
+SHOW TABLES;
+DESCRIBE <table>
+INSERT INTO <table-name> (column1, column2, ..) VALUES ('value1', value2, ..)
+DELETE FROM <table-name> WHERE id = 1
+SELECT column1,column2 FROM <table-name>
+SELECT * FROM <table-name>
+```
+
+###SQL Commands fro Users and Access Rights
+```mysql
+CREATE USER mobius@localhost IDENTIFIED BY 'password';
+GRANT SELECT,UPDATE,DELETE,INSERT on <table-name,table-name> to mobius@localhost;
+GRANT ALL PRIVILEGES ON *.* to username@hostname
+```
+###Backups
+####Logical Backups
+Dump it
+```bash
+mysqldump -u root -p password <table-name> > /backup/inventory.dump
+```
+Restore it
+```bash
+mysql -u root -p <table-name> < /backup/inventory.dump
+
+####Physical Backups(Using LVM snapshots)
+Involves taking a snapshot of the LVM the data base information is on. Then, flush tables and lock them
+```mysql
+FLUSH TABLES READ LOCK;
+```
+On a seperate terminal, snapshot the logical volume:
+```bash
+lvcreate -L20G -s -n mariadb-backup <logical-volume>
+```
+Unlock tables
+```mysql
+UNLOCK TABLES;
+```
+The snapshot can not be mount at an arbitrary location
 
 
+####Performing a logical backup
 ## Providing Apache HTTD Web Service
 
 
