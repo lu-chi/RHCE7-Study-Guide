@@ -460,7 +460,7 @@ postconf -n
 
 * IQN: An iSCSI Qualified Name, a worldwide unique name used to identify both initiators and targets, in the mandated naming format:
 
-```shell
+```bash
 iqn.YYYY-MM.com.reversed.domain[:optional_string]
 ```
 
@@ -590,7 +590,7 @@ nfs-secure-server needs to be running in addition to nfs-server on the nfs serve
 NOTE: Kerberos options will require, at a minimum a /etc/krb5.keytab. Both the client and the server need this.
 
 Example export with kerberos
-```shell
+```bash
 /securedexport	*.example.com(sec=krb5p,rw)
 ```
 
@@ -599,7 +599,8 @@ By default, NFS mounts on the client side have the SELinux context nfs_t, indepe
 This behavior can be changed on the client side by using the mount option 'context=selinux_context'
 
 Switching to NFSv4.2 will cause the SELinux context of a share to be exported. In /etc/sysconfig/nfs:
-```shell
+
+```bash
 RPCNFSDARGS="-V 4.2"
 ```
 Then restart the server
@@ -631,7 +632,7 @@ Under the [global] section,
 
 * workgroup: Used to specify the Windows workgroup for the server.
 
-```shell
+```bash
 workgroup = WORKGROUP
 ```
 
@@ -639,7 +640,7 @@ workgroup = WORKGROUP
 
 * host allow: comma,space, or tab delimted list of hosts that are permited to access the Samba server. If it is not specified, all hosts can access Samba. 
 
-```shell
+```bash
 host allow = 172.25.0.0/24
 ```
 
@@ -654,7 +655,7 @@ host allow = 172.25.0.0/24
 * valid users: A list of users allowed to access the share. If it's blank, all users can access the share. 
 
 For example:
-```shell
+```bash
 [myshare]
 	path = /sharedpath
 	writable = no
@@ -664,7 +665,7 @@ For example:
 
 #####The [homes] section
 The home section defines a special file share, which is enabled by default. It makes local home directories available via SMB.
-```shell
+```bash
 [homes]
 	comment = Home Directories
 	read only = No
@@ -773,7 +774,7 @@ The snapshot can not be mount at an arbitrary location
 /etc/httpd/conf/httpd.conf
 
 Important Blocks and Configs:
-```shell
+```bash
 
 * <Directory [directory]>: sets configuration directives for the specified directory, and all decendent directories. 
 	
@@ -853,7 +854,7 @@ This will generate a bunch of files:
 * /etc/pki/tls/certs/<fqdn>.crt - The public certificate
 
 Configure a host with SSL
-```shell
+```bash
 <VirtualHost *:443>
 	ServerName demo.example.com
 	SSLEngine on
@@ -902,7 +903,7 @@ Serving dynamic python content
 
 2. Add a WSGIScriptAlias line to a virtual host definition
 
-```shell
+```bash
 WSGIScriptAlias /myapp/ /srv/myapp/www/myapp.py
 ```
 NOTE:
