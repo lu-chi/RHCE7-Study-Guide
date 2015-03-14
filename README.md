@@ -774,7 +774,7 @@ The snapshot can not be mount at an arbitrary location
 Important Blocks and Configs:
 ```shell
 
-* \<Directory [directory]\>: sets configuration directives for the specified directory, and all decendent directories. 
+* <Directory [directory]>: sets configuration directives for the specified directory, and all decendent directories. 
 	
 	Common directives inside this block include:
 
@@ -786,11 +786,11 @@ Important Blocks and Configs:
 
 	* Options [[+|-]OPTIONS].. : Turn on (or off) certain options for a directory. For example, the Indexes option will show a directory listng if a directory is requested and no index.html file exists in that directory. 
 
-* DocumentRoot \<directory\>: This setting dtermines where httpd will search for requested files. It is important that the directory specified here is both readable by httpd(both regular and SELinux)
+* DocumentRoot <directory>: This setting dtermines where httpd will search for requested files. It is important that the directory specified here is both readable by httpd(both regular and SELinux)
 
-* \<Files [file]\>: works just as a <Directory> block, but here options for individual files is used.
+* <Files [file]>: works just as a <Directory> block, but here options for individual files is used.
 
-* ErrorLog \<file\>:
+* ErrorLog <file>:
 
 * IncludeOption [directory/*.conf] : Works the same as regular include, but if no files are found, no error is generated.
 
