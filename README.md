@@ -555,7 +555,8 @@ iscsiadm -m node -T <iqn-target-name> [-p target-server[:port]] -o delete
 ## Providing File-based Storage
 ###NFS Exports
 The /etc/exports file lists the directory to share to client hosts over the network and indicates which hosts or networks have access to the export. The following are valid nfs exports
-```shell
+
+```bash
 /myshare	server0.example.com
 /myshare	*.example.com
 /myshare	server[0-20].example.com
