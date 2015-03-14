@@ -887,6 +887,13 @@ To have httpd treat a location as CGI executables, the following syntax is used
 ```bash
 ScriptAlias /cgi-bin/ "/var/www/cgi-bin/"
 ```
+
+Serving dynamic php content
+
+1. Install the mod_cgi package
+
+2. Ensure the SetHandler directive is in the main config
+
 Serving dynamic python content
 
 1. Install the mod_wsgi package
@@ -901,17 +908,73 @@ NOTE:
 When a network connection to another needs to be made from within the web application, and the target is not a well-known database port, the SELinux Boolean httpd_can_network_connect must be set to 1. 
 
 ## Writing Bash Scripts
-
+So easy...
+Use these commands:
+```bash
+#Turn uppercase letters to lowercase
+tr 'A-Z' 'a-z'
+#Cut first field of a colon seperated list
+cut -d: -f1
+#Get first letter of any string
+echo "someInput" | cut -c 1
+#Count the number of matches in a file
+grep -c ^someregex$ /some/file
+```
 
 
 ## Bash Conditionals and Control Structures
+Special variables
+```bash
+#See arguments as one word
+$*
+#See arguments as seperate words
+$@
+#Number of argumnets
+$#
+#See the exit status of an executed command
+$?
+```
+Conditonal Structures
+```bash
+#If statements
+if <CONDITION>; then
+	<STATEMENT>
+		...
+	<STATEMENT>
+elif <CONDITION>; then
+	<STATEMENT>
+else
+	<STATEMENT>
+fi
 
+#Case statements
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		rm -f $lockfile
+		stop
+		;;
+	restart)
+		restart
+		;;
+	reload)
+		reload
+		;;
+	*)
+		echo "Usage..."
+		;;
+esac
+```
 
 ## Configuring the Shell Environment
 ### Concepts
 #### Environment Variables 
 What makes variables environment variables is that they have been exported in the shell. The key to making a variable become an environment variable is flaggin it for export using the export command.
 #### bash start-up scripts
+Profiles are for setting and exporting of environment variables, as well as running commands that should only be run upon login. RCs, such as /etc/bashrc, are for running commands, setting aliases, defining functions, and other settings that cannot be exported to sub-shells. 
+
 Usually, profiles are only executed ina login shell, whereas RCs are executed every time a shell is created.
 #### Using alias
 alias is a way administrators or users can define their own command to the system or override the use of existing system commands.
