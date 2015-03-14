@@ -772,6 +772,7 @@ The snapshot can not be mount at an arbitrary location
 /etc/httpd/conf/httpd.conf
 
 Important Blocks and Configs:
+```shell
 
 * \<Directory [directory]\>: sets configuration directives for the specified directory, and all decendent directories. 
 	
@@ -794,7 +795,7 @@ Important Blocks and Configs:
 * IncludeOption [directory/*.conf] : Works the same as regular include, but if no files are found, no error is generated.
 
 * CustomLog "log-path" combined - Define custom log location
-
+```
 Starting the service, enabling the firewall
 ```bash
 systemctl enable httpd.service
